@@ -1376,6 +1376,242 @@
     <div class="notification" id="notification">Mesaj kopyalandı!</div>
 
     <script>
+        // Gelişmiş veritabanı - PC bileşenleri hakkında 50+ soru ve cevap
+        const knowledgeBase = [
+            {
+                question: "işlemci nedir",
+                answer: "İşlemci (CPU), bir bilgisayarın beyni olarak kabul edilir. Tüm hesaplamaları yapar ve diğer bileşenleri yönetir. Örneğin Intel Core i7 veya AMD Ryzen 7 gibi modeller popülerdir."
+            },
+            {
+                question: "ekran kartı ne işe yarar",
+                answer: "Ekran kartı (GPU), bilgisayarın görüntüleri monitöre aktarmasından sorumludur. Özellikle oyun ve grafik tasarımı için önemlidir. NVIDIA ve AMD başlıca ekran kartı üreticileridir."
+            },
+            {
+                question: "ram nedir",
+                answer: "RAM (Random Access Memory), bilgisayarın geçici veri depoladığı bellektir. Daha fazla RAM, daha hızlı çoklu görev yapabilme imkanı sağlar. 8GB günümüz için minimum, 16GB orta seviye, 32GB ve üzeri ise profesyonel kullanım için idealdir."
+            },
+            {
+                question: "ssd nedir",
+                answer: "SSD (Solid State Drive), geleneksel hard disklerden çok daha hızlı çalışan depolama birimidir. Daha hızlı açılış süreleri ve veri transferi sağlar."
+            },
+            {
+                question: "anakart nedir",
+                answer: "Anakart, bilgisayarın tüm bileşenlerini birbirine bağlayan ana devre kartıdır. İşlemci, RAM, ekran kartı gibi bileşenler anakart üzerine takılır."
+            },
+            {
+                question: "güç kaynağı nedir",
+                answer: "Güç kaynağı (PSU), bilgisayarın tüm bileşenlerine gerekli elektriği sağlar. Kaliteli bir güç kaynağı, sistem kararlılığı için çok önemlidir."
+            },
+            {
+                question: "soğutucu ne işe yarar",
+                answer: "Soğutucu, işlemci ve diğer bileşenlerin aşırı ısınmasını önler. Hava soğutma ve sıvı soğutma olmak üzere iki ana türü vardır."
+            },
+            {
+                question: "hdd nedir",
+                answer: "HDD (Hard Disk Drive), manyetik diskler üzerine veri depolayan geleneksel depolama birimidir. SSD'lere göre daha yavaş ama daha ucuzdur."
+            },
+            {
+                question: "nvme ssd nedir",
+                answer: "NVMe SSD, M.2 slotunu kullanan ve SATA SSD'lerden çok daha hızlı olan yeni nesil depolama teknolojisidir."
+            },
+            {
+                question: "monitör nedir",
+                answer: "Monitör, bilgisayarın görüntü çıkışını gösteren ekrandır. Çözünürlük, yenileme hızı ve panel teknolojisi önemli özellikleridir."
+            },
+            {
+                question: "klavye çeşitleri nelerdir",
+                answer: "Klavyeler mekanik, membran ve hibrit olarak üçe ayrılır. Mekanik klavyeler daha dayanıklı ve hızlı tepki süresine sahiptir."
+            },
+            {
+                question: "fare nedir",
+                answer: "Fare, bilgisayarda imleci kontrol etmek için kullanılan giriş aygıtıdır. Kablolu, kablosuz, oyun ve ofis fareleri gibi çeşitleri vardır."
+            },
+            {
+                question: "hoparlör nedir",
+                answer: "Hoparlör, bilgisayarın ses çıkışını sağlayan aygıttır. 2.0, 2.1, 5.1 gibi kanal konfigürasyonları mevcuttur."
+            },
+            {
+                question: "kasa nedir",
+                answer: "Kasa, bilgisayar bileşenlerini koruyan ve bir arada tutan dış muhafazadır. ATX, Micro-ATX ve Mini-ITX gibi boyutları vardır."
+            },
+            {
+                question: "overclock nedir",
+                answer: "Overclock, bir bileşeni fabrika çıkışı hızından daha yüksek hızlarda çalıştırmaktır. Performans artışı sağlar ama ısınma ve güç tüketimi de artar."
+            },
+            {
+                question: "bios nedir",
+                answer: "BIOS, bilgisayar açılırken donanımları kontrol eden ve işletim sistemini başlatan temel yazılımdır."
+            },
+            {
+                question: "driver nedir",
+                answer: "Driver (sürücü), işletim sisteminin donanımlarla iletişim kurabilmesini sağlayan yazılımlardır."
+            },
+            {
+                question: "sata nedir",
+                answer: "SATA, depolama aygıtlarını anakarta bağlamak için kullanılan bağlantı standardıdır."
+            },
+            {
+                question: "pcie nedir",
+                answer: "PCIe (Peripheral Component Interconnect Express), ekran kartı ve diğer genişleme kartlarını bağlamak için kullanılan yüksek hızlı bağlantı standardıdır."
+            },
+            {
+                question: "usb nedir",
+                answer: "USB (Universal Serial Bus), çevre birimlerini bilgisayara bağlamak için kullanılan evrensel bağlantı standardıdır."
+            },
+            {
+                question: "hdmi nedir",
+                answer: "HDMI, yüksek çözünürlüklü video ve ses sinyali taşıyan dijital bağlantı standardıdır."
+            },
+            {
+                question: "displayport nedir",
+                answer: "DisplayPort, HDMI'ya alternatif olarak geliştirilmiş yüksek çözünürlüklü video bağlantı standardıdır."
+            },
+            {
+                question: "wifi nedir",
+                answer: "WiFi, kablosuz internet bağlantısı sağlayan teknolojidir. WiFi 6 en son ve en hızlı standardıdır."
+            },
+            {
+                question: "ethernet nedir",
+                answer: "Ethernet, kablolu ağ bağlantısı için kullanılan standarttır. Gigabit Ethernet günümüzde yaygındır."
+            },
+            {
+                question: "bluetooth nedir",
+                answer: "Bluetooth, kısa mesafeli kablosuz veri aktarımı için kullanılan teknolojidir."
+            },
+            {
+                question: "rgb nedir",
+                answer: "RGB (Red Green Blue), bileşenlere renkli aydınlatma ekleyen LED teknolojisidir. Estetik amaçlı kullanılır."
+            },
+            {
+                question: "fps nedir",
+                answer: "FPS (Frames Per Second), saniyedeki kare sayısını ifade eder. Oyunlarda daha yüksek FPS, daha akıcı görüntü demektir."
+            },
+            {
+                question: "ping nedir",
+                answer: "Ping, internet bağlantısındaki gecikme süresini ölçen değerdir. Düşük ping daha iyi çevrimiçi oyun deneyimi sağlar."
+            },
+            {
+                question: "thermal paste nedir",
+                answer: "Thermal paste (termal macun), işlemci ile soğutucu arasındaki ısı iletimini artıran özel bir macundur."
+            },
+            {
+                question: "vrm nedir",
+                answer: "VRM (Voltage Regulator Module), anakart üzerinde işlemciye kararlı voltaj sağlayan devrelerdir."
+            },
+            {
+                question: "chipset nedir",
+                answer: "Chipset, anakart üzerindeki bileşenlerin birbiriyle iletişimini yöneten entegre devredir."
+            },
+            {
+                question: "dual channel nedir",
+                answer: "Dual channel, bellek performansını artırmak için iki RAM modülünün birlikte çalıştırılmasıdır."
+            },
+            {
+                question: "raid nedir",
+                answer: "RAID, birden fazla sabit diskin performans ve/veya güvenlik için birlikte çalıştırılmasıdır."
+            },
+            {
+                question: "water cooling nedir",
+                answer: "Water cooling (sıvı soğutma), geleneksel hava soğutmaya göre daha etkili bir soğutma yöntemidir."
+            },
+            {
+                question: "airflow nedir",
+                answer: "Airflow (hava akışı), kasa içindeki sıcak havanın dışarı atılması ve soğuk havanın içeri alınmasıdır."
+            },
+            {
+                question: "modular psu nedir",
+                answer: "Modular PSU, gereksiz kabloları çıkarabilme özelliğine sahip güç kaynağıdır. Kasa içi düzen için idealdir."
+            },
+            {
+                question: "ips panel nedir",
+                answer: "IPS panel, daha iyi renk doğruluğu ve görüş açısı sunan bir monitör panel teknolojisidir."
+            },
+            {
+                question: "va panel nedir",
+                answer: "VA panel, IPS ve TN paneller arasında yer alan, iyi kontrast oranı sunan panel teknolojisidir."
+            },
+            {
+                question: "tn panel nedir",
+                answer: "TN panel, hızlı tepki süresi sunan ama renk doğruluğu düşük olan panel teknolojisidir."
+            },
+            {
+                question: "oled nedir",
+                answer: "OLED, her pikselin kendi kendine ışık yaydığı, mükemmel siyah seviyeleri sunan ekran teknolojisidir."
+            },
+            {
+                question: "hdr nedir",
+                answer: "HDR (High Dynamic Range), daha geniş renk aralığı ve parlaklık sunan görüntü teknolojisidir."
+            },
+            {
+                question: "gsync nedir",
+                answer: "G-Sync, NVIDIA'nın ekran yineleme hızını ekran kartı ile senkronize eden teknolojisidir."
+            },
+            {
+                question: "freesync nedir",
+                answer: "FreeSync, AMD'nin ekran yineleme hızını ekran kartı ile senkronize eden teknolojisidir."
+            },
+            {
+                question: "rtx nedir",
+                answer: "RTX, NVIDIA'nın gerçek zamanlı ışık izleme (ray tracing) teknolojisini destekleyen ekran kartı serisidir."
+            },
+            {
+                question: "dlss nedir",
+                answer: "DLSS, NVIDIA'nın yapay zeka kullanarak performansı artıran görüntü iyileştirme teknolojisidir."
+            },
+            {
+                question: "ryzen nedir",
+                answer: "Ryzen, AMD'nin yüksek performanslı işlemci serisidir. Çok çekirdekli yapısıyla dikkat çeker."
+            },
+            {
+                question: "core i serisi nedir",
+                answer: "Core i serisi, Intel'in performans işlemci serisidir. i3, i5, i7, i9 gibi modelleri vardır."
+            },
+            {
+                question: "thread nedir",
+                answer: "Thread (iş parçacığı), bir işlemcinin aynı anda işleyebildiği görev sayısını ifade eder."
+            },
+            {
+                question: "cache nedir",
+                answer: "Cache (önbellek), işlemcinin sık kullandığı verileri hızlıca erişebilmesi için depoladığı bellektir."
+            },
+            {
+                question: "tpm nedir",
+                answer: "TPM (Trusted Platform Module), güvenlik için kullanılan donanım tabanlı şifreleme çipidir."
+            },
+            {
+                question: "uefi nedir",
+                answer: "UEFI, BIOS'un modern ve gelişmiş halidir. Daha hızlı açılış ve daha fazla özellik sunar."
+            },
+            {
+                question: "form factor nedir",
+                answer: "Form factor, bileşenlerin fiziksel boyut ve bağlantı standartlarını ifade eder."
+            },
+            {
+                question: "backplate nedir",
+                answer: "Backplate, anakartı kasanın arka paneline sabitlemeye yarayan metal plakadır."
+            },
+            {
+                question: "io shield nedir",
+                answer: "IO Shield, anakartın arka panel bağlantılarını koruyan metal kapaktır."
+            },
+            {
+                question: "cable management nedir",
+                answer: "Cable management (kablo yönetimi), kasa içindeki kabloları düzenleyerek hava akışını iyileştirme işlemidir."
+            },
+            {
+                question: "benchmark nedir",
+                answer: "Benchmark, bilgisayar bileşenlerinin performansını ölçmek için kullanılan test yazılımlarıdır."
+            },
+            {
+                question: "bottleneck nedir",
+                answer: "Bottleneck (darboğaz), sistemdeki bir bileşenin diğerlerini yavaşlatan zayıf halka olması durumudur."
+            }
+        ];
+
+        // Global değişkenler
+        let chatContext = [];
+        const MAX_CONTEXT_LENGTH = 10;
+
         // Görsel Üretme Fonksiyonları
         function openImageModal() {
             document.getElementById('image-modal').style.display = 'block';
@@ -1457,34 +1693,6 @@
                 closeMobileSidebar();
             }
         }
-
-        // Gelişmiş veritabanı - PC bileşenleri hakkında sorular ve cevaplar
-        const knowledgeBase = [
-            {
-                question: "işlemci nedir",
-                answer: "İşlemci (CPU), bir bilgisayarın beyni olarak kabul edilir. Tüm hesaplamaları yapar ve diğer bileşenleri yönetir. Örneğin Intel Core i7 veya AMD Ryzen 7 gibi modeller popülerdir."
-            },
-            {
-                question: "ekran kartı ne işe yarar",
-                answer: "Ekran kartı (GPU), bilgisayarın görüntüleri monitöre aktarmasından sorumludur. Özellikle oyun ve grafik tasarımı için önemlidir. NVIDIA ve AMD başlıca ekran kartı üreticileridir."
-            },
-            {
-                question: "ram nedir",
-                answer: "RAM (Random Access Memory), bilgisayarın geçici veri depoladığı bellektir. Daha fazla RAM, daha hızlı çoklu görev yapabilme imkanı sağlar. 8GB günümüz için minimum, 16GB orta seviye, 32GB ve üzeri ise profesyonel kullanım için idealdir."
-            },
-            {
-                question: "ssd nedir",
-                answer: "SSD (Solid State Drive), geleneksel hard disklerden çok daha hızlı çalışan depolama birimidir. Daha hızlı açılış süreleri ve veri transferi sağlar."
-            },
-            {
-                question: "anakart nedir",
-                answer: "Anakart, bilgisayarın tüm bileşenlerini birbirine bağlayan ana devre kartıdır. İşlemci, RAM, ekran kartı gibi bileşenler anakart üzerine takılır."
-            }
-        ];
-
-        // Global değişkenler
-        let chatContext = [];
-        const MAX_CONTEXT_LENGTH = 10;
 
         // Mobil sidebar fonksiyonları
         function openMobileSidebar() {
