@@ -1,3 +1,85 @@
+// Görsel Üretme Fonksiyonları
+function openImageModal() {
+    document.getElementById('image-modal').style.display = 'block';
+    document.getElementById('image-loading').style.display = 'none';
+    document.getElementById('image-result').style.display = 'none';
+}
+
+function closeImageModal() {
+    document.getElementById('image-modal').style.display = 'none';
+}
+
+function generateImage(productName) {
+    const imageLoading = document.getElementById('image-loading');
+    const imageResult = document.getElementById('image-result');
+    const generatedImage = document.getElementById('generated-image');
+    
+    imageLoading.style.display = 'block';
+    imageResult.style.display = 'none';
+    
+    const stages = ['stage1', 'stage2', 'stage3', 'stage4'];
+    stages.forEach(stage => {
+        document.getElementById(stage).classList.remove('active');
+    });
+    
+    let currentStage = 0;
+    const stageInterval = setInterval(() => {
+        if (currentStage > 0) {
+            document.getElementById(stages[currentStage - 1]).classList.remove('active');
+        }
+        document.getElementById(stages[currentStage]).classList.add('active');
+        currentStage++;
+        
+        if (currentStage >= stages.length) {
+            clearInterval(stageInterval);
+            
+            // Görseli oluştur (SÜRE ARTIRILDI: 3000ms)
+            setTimeout(() => {
+                const imageUrls = {
+                    'RTX 8090': 'ez.png',
+                    'RTX 8090 2': '8090.png',
+                    'Intel 20900K': '20900k.png',
+                    'Gaming Room': 'gamer room.png',
+                    'Gaming PC': 'gamerpc.png',
+                    'Gaming PC 2': 'gaming pc.png',
+                    'RX 10090': 'gg.png',
+                    'RGB Setup': 'rgb setup.png'
+                };
+                
+                generatedImage.src = imageUrls[productName];
+                generatedImage.alt = productName;
+                
+                imageLoading.style.display = 'none';
+                imageResult.style.display = 'block';
+                
+                showNotification(`${productName} görseli oluşturuldu!`);
+            }, 3000); // 1000ms yerine 3000ms - 3 saniye
+        }
+    }, 1200); // 800ms yerine 1200ms - her aşama daha uzun
+}
+
+// Global fonksiyonlar
+function goToPriceSites() {
+    const sites = [
+        'https://www.hepsiburada.com',
+        'https://www.vatanbilgisayar.com',
+        'https://www.trendyol.com',
+        'https://www.amazon.com.tr',
+        'https://www.technopat.net',
+        'https://www.donanimhaber.com'
+    ];
+    
+    const randomSite = sites[Math.floor(Math.random() * sites.length)];
+    window.open(randomSite, '_blank');
+}
+
+function askQuestionDirectly(question) {
+    handleUserMessageDirectly(question);
+    if (window.innerWidth <= 768) {
+        closeMobileSidebar();
+    }
+}
+
 // Gelişmiş veritabanı - PC bileşenleri hakkında sorular ve cevaplar
 const knowledgeBase = [
     {
@@ -26,41 +108,36 @@ const knowledgeBase = [
 let chatContext = [];
 const MAX_CONTEXT_LENGTH = 10;
 
-// Global fonksiyonlar
-function goToPriceSites() {
-    const sites = [
-        'https://www.hepsiburada.com',
-        'https://www.vatanbilgisayar.com',
-        'https://www.trendyol.com',
-        'https://www.amazon.com.tr',
-        'https://www.technopat.net',
-        'https://www.donanimhaber.com'
-    ];
-    const randomSite = sites[Math.floor(Math.random() * sites.length)];
-    window.open(randomSite, '_blank');
+// Mobil sidebar fonksiyonları
+function openMobileSidebar() {
+    document.getElementById('suggestion-sidebar').classList.add('active');
+    document.getElementById('mobile-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
-function askQuestionDirectly(question) {
-    handleUserMessageDirectly(question);
+function closeMobileSidebar() {
+    document.getElementById('suggestion-sidebar').classList.remove('active');
+    document.getElementById('mobile-overlay').classList.remove('active');
+    document.body.style.overflow = 'auto';
 }
 
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
     // Hoşgeldin animasyonunu göster
     const welcomeAnimation = document.getElementById('welcome-animation');
-    const container = document.querySelector('.container');
+    const mainContainer = document.querySelector('.main-container');
     
     // 3 saniye sonra hoşgeldin animasyonunu kapat ve ana içeriği göster
     setTimeout(() => {
         welcomeAnimation.style.display = 'none';
-        container.style.display = 'block';
+        mainContainer.style.display = 'flex';
         
         // Ana içerik gösterildikten sonra ilk mesajı ekle
         setTimeout(() => {
-            addMessageToChat("Merhaba! Hoşgeldiniz. Ben MeRa 0.6, PC bileşenleri hakkında sorularınızı yanıtlayabilen gelişmiş bir yapay zeka asistanıyım. Size nasıl yardımcı olabilirim?", 'ai');
+            addMessageToChat("Merhaba! Hoşgeldiniz. Ben MERA AI beta 0.9, PC bileşenleri hakkında sorularınızı yanıtlayabilen gelişmiş bir yapay zeka asistanıyım. Sağ taraftaki 'Görsel Üretme' butonuna tıklayarak çeşitli PC bileşenlerinin görsellerini oluşturabilirsiniz. Size nasıl yardımcı olabilirim?", 'ai');
         }, 300);
     }, 3000);
-    
+
     // Elementleri seç
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
@@ -70,7 +147,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeBtn = document.querySelector('.close');
     const questionsList = document.getElementById('questions-list');
     const questionSearch = document.getElementById('question-search');
+    const themeToggle = document.getElementById('theme-toggle');
     const notification = document.getElementById('notification');
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarClose = document.getElementById('sidebar-close');
+    const mobileOverlay = document.getElementById('mobile-overlay');
+    
+    // Mobil menü butonu
+    mobileMenuBtn.addEventListener('click', openMobileSidebar);
+    
+    // Sidebar kapatma butonu
+    sidebarClose.addEventListener('click', closeMobileSidebar);
+    
+    // Mobil overlay tıklama
+    mobileOverlay.addEventListener('click', closeMobileSidebar);
+    
+    // Tema değiştirme
+    themeToggle.addEventListener('click', function() {
+        document.body.classList.toggle('dark-mode');
+        const icon = themeToggle.querySelector('i');
+        if (document.body.classList.contains('dark-mode')) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        } else {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    });
     
     // Tüm sorular modalını açma/kapama
     allQuestionsBtn.addEventListener('click', function() {
@@ -85,6 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('click', function(event) {
         if (event.target == modal) {
             modal.style.display = 'none';
+        }
+        if (event.target == document.getElementById('image-modal')) {
+            closeImageModal();
         }
     });
     
@@ -279,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const thinkingHeader = document.createElement('div');
         thinkingHeader.classList.add('message-header');
-        thinkingHeader.textContent = 'MeRa 0.6 düşünüyor...';
+        thinkingHeader.textContent = 'MERA AI beta 0.9 düşünüyor...';
         
         const thinkingAnimation = document.createElement('div');
         thinkingAnimation.classList.add('thinking-animation');
@@ -306,7 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const messageHeader = document.createElement('div');
         messageHeader.classList.add('message-header');
-        messageHeader.textContent = sender === 'user' ? 'Siz' : 'MeRa 0.6';
+        messageHeader.textContent = sender === 'user' ? 'Siz' : 'MERA AI beta 0.9';
         
         const messageText = document.createElement('p');
         messageText.textContent = message;
