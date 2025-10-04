@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MERA AI beta 0.9 - PC Bileşenleri Asistanı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #fdbb2d;
+            --text-color: #333;
+            --bg-color: #f9f9f9;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --user-msg-bg: #3498db;
+            --ai-msg-bg: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --sidebar-bg: #f8f9fa;
+        }
+
+        .dark-mode {
+            --primary-color: #1a252f;
+            --secondary-color: #2980b9;
+            --accent-color: #f39c12;
+            --text-color: #ecf0f1;
+            --bg-color: #2c3e50;
+            --card-bg: #34495e;
+            --border-color: #4a6572;
+            --user-msg-bg: #2980b9;
+            --ai-msg-bg: #4a6572;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --sidebar-bg: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-color);
+            transition: background 0.5s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        /* Ana Layout */
+        .main-container {
+            display: flex;
+            gap: 20px;
+            width: 95%;
+            max-width: 1400px;
+            margin-top: 20px;
+        }
+
+        /* Sol Taraf - Ana Sohbet */
+        .chat-side {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Sağ Taraf - Öneri Kutusu */
+        .suggestion-sidebar {
+            width: 300px;
+            background: var(--sidebar-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .sidebar-header i {
+            color: var(--accent-color);
+            font-size: 20px;
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: var(--primary-color);
+        }
+
+        .suggestion-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .suggestion-item:hover {
+            transform: translateX(5px);
+            border-color: var(--secondary-color);
+            box-shadow: var(--shadow);
+        }
+
+        .suggestion-item i {
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .suggestion-text {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .search-sites {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .search-sites i {
+            color: var(--primary-color);
+        }
+
+        /* Görsel Üretme Butonu */
+        .image-generation-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .image-generation-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Görsel Üretme Modalı */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            animation: fadeIn 0.3s;
+        }
+
+        .image-modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s;
+            color: white;
+            text-align: center;
+        }
+
+        .image-modal-header {
+            margin-bottom: 25px;
+        }
+
+        .image-modal-header h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .image-modal-header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .image-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .image-gallery-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .image-gallery-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .image-gallery-item img {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .image-gallery-item span {
+            font-size: 14px;
+            font-weight: 600;
+            display: block;
+        }
+
+        .image-modal-close {
+            background: var(--accent-color);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .image-modal-close:hover {
+            background: #ffcc44;
+            transform: translateY(-2px);
+        }
+
+        /* Görsel Yükleme Ekranı */
+        .image-loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-stages {
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        .stage {
+            opacity: 0.6;
+            transition: opacity 0.3s;
+            margin: 5px 0;
+        }
+
+        .stage.active {
+            opacity: 1;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .image-result {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .generated-image {
+            max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Hoşgeldin Animasyonu */
+        .welcome-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .animation-content {
+            text-align: center;
+            color: white;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-gif {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        .welcome-animation h1 {
+            font-size: 2.2rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: slideInFromLeft 1.5s ease-out;
+        }
+
+        @keyframes slideInFromLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+        .loading-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #3498db, #fdbb2d);
+            border-radius: 3px;
+            animation: loading 2s ease-in-out forwards;
+        }
+
+        @keyframes loading {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .container {
+            width: 100%;
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            animation: containerSlideIn 0.8s ease-out;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes containerSlideIn {
+            from { 
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary-color), #4a6491);
+            color: white;
+            padding: 20px 25px;
+            text-align: center;
+            border-bottom: 5px solid var(--accent-color);
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+        }
+
+        .header-text h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .header-text p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-toggle {
+            background: var(--accent-color);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(30deg);
+        }
+
+        #all-questions-btn {
+            padding: 10px 15px;
+            background: linear-gradient(to bottom, var(--accent-color), #f46b45);
+            color: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #all-questions-btn:hover {
+            background: linear-gradient(to bottom, #ffcc44, #f57c50);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-container {
+            padding: 25px;
+            background-color: var(--bg-color);
+            transition: background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+        }
+
+        .chat-box {
+            flex: 1;
+            overflow-y: auto;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 85%;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.4s ease-out forwards;
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user-message {
+            background: linear-gradient(to right, var(--user-msg-bg), var(--primary-color));
+            color: white;
+            margin-left: auto;
+            animation-delay: 0.1s;
+        }
+
+        .message.ai-message {
+            background: linear-gradient(to right, var(--ai-msg-bg), #f0f0f0);
+            color: var(--text-color);
+            border-left: 4px solid var(--primary-color);
+            animation-delay: 0.2s;
+        }
+
+        .message-header {
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--primary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-message .message-header {
+            color: #e0e0e0;
+            text-align: right;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .message-action-btn {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .message-action-btn:hover {
+            opacity: 1;
+        }
+
+        .message p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .thinking-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
+            margin-bottom: 10px;
+        }
+
+        .thinking-animation span {
+            height: 8px;
+            width: 8px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .thinking-animation span:nth-child(1) { animation-delay: 0s; }
+        .thinking-animation span:nth-child(2) { animation-delay: 0.2s; }
+        .thinking-animation span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+
+        .history-options {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .history-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .history-yes {
+            background: linear-gradient(to bottom, #27ae60, #219653);
+            color: white;
+        }
+
+        .history-no {
+            background: linear-gradient(to bottom, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .history-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .history-message {
+            text-align: center;
+            padding: 15px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        /* DİKEY INPUT ALANI - TELEFON İÇİN */
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            min-height: 50px;
+            resize: none;
+        }
+
+        #user-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        #send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(to bottom, var(--primary-color), #1a252f);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 50px;
+        }
+
+        #send-btn:hover {
+            background: linear-gradient(to bottom, var(--secondary-color), var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        #send-btn:active {
+            transform: translateY(0);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s;
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(to right, var(--primary-color), #4a6491);
+            color: white;
+            padding: 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: var(--accent-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .search-box {
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        #question-search {
+            width: 100%;
+            padding: 12px 15px 12px 40px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+
+        #question-search:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .questions-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .question-item {
+            padding: 12px 15px;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid var(--secondary-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .question-item:hover {
+            background-color: var(--ai-msg-bg);
+            transform: translateX(5px);
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+
+        .favorite-btn.active {
+            color: var(--accent-color);
+        }
+
+        .favorite-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .suggestion-btn {
+            padding: 8px 15px;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            color: var(--text-color);
+        }
+
+        .suggestion-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .chat-box::-webkit-scrollbar,
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-box::-webkit-scrollbar-track,
+        .modal-body::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 10px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb,
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .chat-box::-webkit-scrollbar-thumb:hover,
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        /* Responsive tasarım */
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .suggestion-sidebar {
+                width: 100%;
+                order: -1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .main-container {
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .logo-gif {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .welcome-animation h1 {
+                font-size: 1.8rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .header-logo {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .header-text h1 {
+                font-size: 20px;
+            }
+            
+            .header-text p {
+                font-size: 12px;
+            }
+            
+            .history-options {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .suggestion-sidebar {
+                padding: 15px;
+            }
+
+            /* Mobile Menu Button */
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            /* Mobile Sidebar */
+            .suggestion-sidebar {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 85%;
+                height: 100%;
+                z-index: 999;
+                transition: right 0.3s ease;
+                overflow-y: auto;
+                padding-top: 60px;
+            }
+
+            .suggestion-sidebar.active {
+                right: 0;
+            }
+
+            .sidebar-close {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: none;
+                border: none;
+                font-size: 24px;
+                color: var(--primary-color);
+                cursor: pointer;
+            }
+
+            /* Mobile Header */
+            header {
+                padding: 15px;
+                flex-wrap: wrap;
+            }
+
+            .header-controls {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
+            }
+
+            /* Mobile Chat Container */
+            .chat-container {
+                padding: 15px;
+                height: calc(100vh - 150px);
+            }
+
+            /* Mobile Chat Box */
+            .chat-box {
+                height: auto;
+                padding: 15px;
+                margin-bottom: 10px;
+            }
+
+            .message {
+                max-width: 95%;
+                padding: 12px;
+            }
+
+            /* Mobile Input Area - DİKEY */
+            .input-area {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #user-input {
+                width: 100%;
+                min-height: 60px;
+                font-size: 16px;
+            }
+
+            #send-btn {
+                width: 100%;
+                min-height: 50px;
+                font-size: 16px;
+            }
+
+            /* Mobile Modal */
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .modal-body {
+                padding: 15px;
+                max-height: 70vh;
+            }
+
+            /* Mobile Görsel Üretme */
+            .image-modal-content {
+                margin: 10% auto;
+                padding: 20px;
+                width: 95%;
+            }
+
+            .image-gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .image-gallery-item {
+                padding: 15px;
+            }
+
+            .image-gallery-item img {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .main-container {
+                margin-top: 5px;
+            }
+
+            .logo-gif {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .welcome-animation h1 {
+                font-size: 1.4rem;
+            }
+            
+            .loading-bar {
+                width: 250px;
+            }
+            
+            .container {
+                width: 100%;
+            }
+            
+            header {
+                padding: 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .chat-container {
+                padding: 10px;
+                height: calc(100vh - 120px);
+            }
+            
+            .message {
+                max-width: 90%;
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .input-area {
+                gap: 8px;
+            }
+            
+            #user-input {
+                padding: 12px;
+                min-height: 50px;
+                font-size: 14px;
+            }
+            
+            #send-btn {
+                padding: 12px;
+                min-height: 45px;
+                font-size: 14px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+            
+            .suggestions {
+                justify-content: center;
+            }
+
+            .suggestion-sidebar {
+                width: 90%;
+            }
+
+            .header-text h1 {
+                font-size: 18px;
+            }
+            
+            .header-text p {
+                font-size: 11px;
+            }
+
+            .image-gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .mobile-overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hoşgeldin Animasyonu -->
+    <div id="welcome-animation" class="welcome-animation">
+        <div class="animation-content">
+            <img src="Black and White Modern AI Logo.png" alt="MERA AI beta 0.9" class="logo-gif">
+            <h1>MERA AI beta 0.9 - PC Bileşenleri Asistanı</h1>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container" style="display: none;">
+        <!-- Sol Taraf - Ana Sohbet -->
+        <div class="chat-side">
+            <div class="container">
+                <header>
+                    <div class="header-content">
+                        <img src="Black and White Modern AI Logo.png" alt="MERA AI Logo" class="header-logo">
+                        <div class="header-text">
+                            <h1>MERA AI beta 0.9 - PC Bileşenleri Asistanı</h1>
+                            <p>Gelişmiş özelliklerle daha akıllı asistan deneyimi</p>
+                        </div>
+                    </div>
+                    <div class="header-controls">
+                        <button class="mobile-menu-btn" id="mobile-menu-btn">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <button class="theme-toggle" id="theme-toggle">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        <button id="all-questions-btn">Tüm Sorular</button>
+                    </div>
+                </header>
+
+                <div class="chat-container">
+                    <div id="chat-box" class="chat-box">
+                        <!-- İlk mesaj JavaScript ile eklenecek -->
+                    </div>
+
+                    <div class="input-area">
+                        <textarea id="user-input" placeholder="Sorunuzu buraya yazın..." rows="3"></textarea>
+                        <button id="send-btn">
+                            <span class="btn-text">Gönder</span>
+                            <span class="btn-loading" style="display: none;">
+                                <div class="typing-animation">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sağ Taraf - Öneri Kutusu -->
+        <div class="suggestion-sidebar" id="suggestion-sidebar">
+            <button class="sidebar-close" id="sidebar-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="sidebar-header">
+                <i class="fas fa-lightbulb"></i>
+                <h3>Hızlı Öneriler</h3>
+            </div>
+
+            <div class="suggestion-category">
+                <div class="category-title">Araştırma Siteleri</div>
+                <div class="suggestion-item search-sites" onclick="goToPriceSites()">
+                    <i class="fas fa-external-link-alt"></i>
+                    <div class="suggestion-text">Güncel fiyatlar için siteler</div>
+                </div>
+            </div>
+
+            <!-- GÖRSEL ÜRETME BUTONU -->
+            <button class="image-generation-btn" onclick="openImageModal()">
+                <i class="fas fa-camera"></i>
+                Görsel Üretme
+            </button>
+        </div>
+
+        <!-- Mobile Overlay -->
+        <div class="mobile-overlay" id="mobile-overlay"></div>
+    </div>
+
+    <!-- GÖRSEL ÜRETME MODALI -->
+    <div id="image-modal" class="image-modal">
+        <div class="image-modal-content">
+            <div class="image-modal-header">
+                <h2><i class="fas fa-robot"></i> AI Görsel Üretme</h2>
+                <p>Aşağıdaki PC bileşenlerinden birini seçin, MERA AI görselinizi oluştursun!</p>
+            </div>
+
+            <div class="image-gallery-grid">
+                <div class="image-gallery-item" onclick="generateImage('RTX 8090')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Cpath d='M8 10h8v4H8z'/%3E%3C/svg%3E" alt="GPU">
+                    <span>RTX 8090</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('RTX 8090 2')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Cpath d='M8 10h8v4H8z'/%3E%3C/svg%3E" alt="GPU">
+                    <span>RTX 8090 2</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('Intel 20900K')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E" alt="CPU">
+                    <span>Intel 20900K</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('Gaming Room')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Crect x='6' y='8' width='12' height='8'/%3E%3C/svg%3E" alt="Room">
+                    <span>Gaming Room</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('Gaming PC')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Crect x='6' y='8' width='12' height='8'/%3E%3C/svg%3E" alt="PC">
+                    <span>Gaming PC</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('Gaming PC 2')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Crect x='6' y='8' width='12' height='8'/%3E%3C/svg%3E" alt="PC">
+                    <span>Gaming PC 2</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('RX 10090')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M4 6h16v12H4z'/%3E%3Cpath d='M8 10h8v4H8z'/%3E%3C/svg%3E" alt="GPU">
+                    <span>RX 10090</span>
+                </div>
+                <div class="image-gallery-item" onclick="generateImage('RGB Setup')">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Crect x='2' y='6' width='20' height='12' rx='1'/%3E%3Crect x='4' y='8' width='2' height='2'/%3E%3Crect x='8' y='8' width='2' height='2'/%3E%3C/svg%3E" alt="Setup">
+                    <span>RGB Setup</span>
+                </div>
+            </div>
+
+            <!-- Yükleme Ekranı -->
+            <div class="image-loading" id="image-loading">
+                <div class="loading-spinner"></div>
+                <p><strong>MERA AI şöyle diyor: Görsel hazırlanıyor...</strong></p>
+                <div class="loading-stages">
+                    <div class="stage" id="stage1">AI modeli yükleniyor...</div>
+                    <div class="stage" id="stage2">Görsel oluşturuluyor...</div>
+                    <div class="stage" id="stage3">Neredeyse bitti...</div>
+                    <div class="stage" id="stage4">Görsel hazır!</div>
+                </div>
+            </div>
+
+            <!-- Sonuç Ekranı -->
+            <div class="image-result" id="image-result">
+                <img class="generated-image" id="generated-image" alt="AI tarafından oluşturulan görsel">
+            </div>
+
+            <button class="image-modal-close" onclick="closeImageModal()">Kapat</button>
+        </div>
+    </div>
+
+    <!-- Sorular Modalı -->
+    <div id="questions-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Sorabileceğiniz Sorular</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="question-search" placeholder="Sorularda arama...">
+                </div>
+                <div id="questions-list" class="questions-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">Mesaj kopyalandı!</div>
+
+    <script>
+        // Görsel Üretme Fonksiyonları
+        function openImageModal() {
+            document.getElementById('image-modal').style.display = 'block';
+            document.getElementById('image-loading').style.display = 'none';
+            document.getElementById('image-result').style.display = 'none';
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').style.display = 'none';
+        }
+
+        function generateImage(productName) {
+            const imageLoading = document.getElementById('image-loading');
+            const imageResult = document.getElementById('image-result');
+            const generatedImage = document.getElementById('generated-image');
+            
+            imageLoading.style.display = 'block';
+            imageResult.style.display = 'none';
+            
+            const stages = ['stage1', 'stage2', 'stage3', 'stage4'];
+            stages.forEach(stage => {
+                document.getElementById(stage).classList.remove('active');
+            });
+            
+            let currentStage = 0;
+            const stageInterval = setInterval(() => {
+                if (currentStage > 0) {
+                    document.getElementById(stages[currentStage - 1]).classList.remove('active');
+                }
+                document.getElementById(stages[currentStage]).classList.add('active');
+                currentStage++;
+                
+                if (currentStage >= stages.length) {
+                    clearInterval(stageInterval);
+                    
+                    // Görseli oluştur (SÜRE ARTIRILDI: 3000ms)
+                    setTimeout(() => {
+                        const imageUrls = {
+                            'RTX 8090': 'ez.png',
+                            'RTX 8090 2': '8090.png',
+                            'Intel 20900K': '20900k.png',
+                            'Gaming Room': 'gamer room.png',
+                            'Gaming PC': 'gamerpc.png',
+                            'Gaming PC 2': 'gaming pc.png',
+                            'RX 10090': 'gg.png',
+                            'RGB Setup': 'rgb setup.png'
+                        };
+                        
+                        generatedImage.src = imageUrls[productName];
+                        generatedImage.alt = productName;
+                        
+                        imageLoading.style.display = 'none';
+                        imageResult.style.display = 'block';
+                        
+                        showNotification(`${productName} görseli oluşturuldu!`);
+                    }, 3000); // 1000ms yerine 3000ms - 3 saniye
+                }
+            }, 1200); // 800ms yerine 1200ms - her aşama daha uzun
+        }
+
+        // Global fonksiyonlar
+        function goToPriceSites() {
+            const sites = [
+                'https://www.hepsiburada.com',
+                'https://www.vatanbilgisayar.com',
+                'https://www.trendyol.com',
+                'https://www.amazon.com.tr',
+                'https://www.technopat.net',
+                'https://www.donanimhaber.com'
+            ];
+            
+            const randomSite = sites[Math.floor(Math.random() * sites.length)];
+            window.open(randomSite, '_blank');
+        }
+
+        function askQuestionDirectly(question) {
+            handleUserMessageDirectly(question);
+            if (window.innerWidth <= 768) {
+                closeMobileSidebar();
+            }
+        }
+
+        // Gelişmiş veritabanı - PC bileşenleri hakkında sorular ve cevaplar
+        const knowledgeBase = [
+            {
+                question: "işlemci nedir",
+                answer: "İşlemci (CPU), bir bilgisayarın beyni olarak kabul edilir. Tüm hesaplamaları yapar ve diğer bileşenleri yönetir. Örneğin Intel Core i7 veya AMD Ryzen 7 gibi modeller popülerdir."
+            },
+            {
+                question: "ekran kartı ne işe yarar",
+                answer: "Ekran kartı (GPU), bilgisayarın görüntüleri monitöre aktarmasından sorumludur. Özellikle oyun ve grafik tasarımı için önemlidir. NVIDIA ve AMD başlıca ekran kartı üreticileridir."
+            },
+            {
+                question: "ram nedir",
+                answer: "RAM (Random Access Memory), bilgisayarın geçici veri depoladığı bellektir. Daha fazla RAM, daha hızlı çoklu görev yapabilme imkanı sağlar. 8GB günümüz için minimum, 16GB orta seviye, 32GB ve üzeri ise profesyonel kullanım için idealdir."
+            },
+            {
+                question: "ssd nedir",
+                answer: "SSD (Solid State Drive), geleneksel hard disklerden çok daha hızlı çalışan depolama birimidir. Daha hızlı açılış süreleri ve veri transferi sağlar."
+            },
+            {
+                question: "anakart nedir",
+                answer: "Anakart, bilgisayarın tüm bileşenlerini birbirine bağlayan ana devre kartıdır. İşlemci, RAM, ekran kartı gibi bileşenler anakart üzerine takılır."
+            }
+        ];
+
+        // Global değişkenler
+        let chatContext = [];
+        const MAX_CONTEXT_LENGTH = 10;
+
+        // Mobil sidebar fonksiyonları
+        function openMobileSidebar() {
+            document.getElementById('suggestion-sidebar').classList.add('active');
+            document.getElementById('mobile-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobileSidebar() {
+            document.getElementById('suggestion-sidebar').classList.remove('active');
+            document.getElementById('mobile-overlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Sayfa yüklendiğinde çalışacak fonksiyon
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hoşgeldin animasyonunu göster
+            const welcomeAnimation = document.getElementById('welcome-animation');
+            const mainContainer = document.querySelector('.main-container');
+            
+            // 3 saniye sonra hoşgeldin animasyonunu kapat ve ana içeriği göster
+            setTimeout(() => {
+                welcomeAnimation.style.display = 'none';
+                mainContainer.style.display = 'flex';
+                
+                // Ana içerik gösterildikten sonra ilk mesajı ekle
+                setTimeout(() => {
+                    addMessageToChat("Merhaba! Hoşgeldiniz. Ben MERA AI beta 0.9, PC bileşenleri hakkında sorularınızı yanıtlayabilen gelişmiş bir yapay zeka asistanıyım. Sağ taraftaki 'Görsel Üretme' butonuna tıklayarak çeşitli PC bileşenlerinin görsellerini oluşturabilirsiniz. Size nasıl yardımcı olabilirim?", 'ai');
+                }, 300);
+            }, 3000);
+
+            // Elementleri seç
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatBox = document.getElementById('chat-box');
+            const allQuestionsBtn = document.getElementById('all-questions-btn');
+            const modal = document.getElementById('questions-modal');
+            const closeBtn = document.querySelector('.close');
+            const questionsList = document.getElementById('questions-list');
+            const questionSearch = document.getElementById('question-search');
+            const themeToggle = document.getElementById('theme-toggle');
+            const notification = document.getElementById('notification');
+            const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+            const sidebarClose = document.getElementById('sidebar-close');
+            const mobileOverlay = document.getElementById('mobile-overlay');
+            
+            // Mobil menü butonu
+            mobileMenuBtn.addEventListener('click', openMobileSidebar);
+            
+            // Sidebar kapatma butonu
+            sidebarClose.addEventListener('click', closeMobileSidebar);
+            
+            // Mobil overlay tıklama
+            mobileOverlay.addEventListener('click', closeMobileSidebar);
+            
+            // Tema değiştirme
+            themeToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                const icon = themeToggle.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+            
+            // Tüm sorular modalını açma/kapama
+            allQuestionsBtn.addEventListener('click', function() {
+                modal.style.display = 'block';
+                populateQuestionsList();
+            });
+            
+            closeBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target == modal) {
+                    modal.style.display = 'none';
+                }
+                if (event.target == document.getElementById('image-modal')) {
+                    closeImageModal();
+                }
+            });
+            
+            // Soru arama
+            questionSearch.addEventListener('input', function() {
+                populateQuestionsList(this.value.toLowerCase());
+            });
+            
+            // Soru listesini doldur
+            function populateQuestionsList(searchTerm = '') {
+                questionsList.innerHTML = '';
+                knowledgeBase.forEach((item, index) => {
+                    if (searchTerm === '' || item.question.toLowerCase().includes(searchTerm)) {
+                        const questionItem = document.createElement('div');
+                        questionItem.classList.add('question-item');
+                        
+                        const questionText = document.createElement('div');
+                        questionText.textContent = item.question;
+                        
+                        const favoriteBtn = document.createElement('button');
+                        favoriteBtn.classList.add('favorite-btn');
+                        favoriteBtn.innerHTML = '<i class="far fa-star"></i>';
+                        favoriteBtn.title = 'Favorilere ekle';
+                        
+                        // Favori kontrolü
+                        const favorites = getFavorites();
+                        if (favorites.includes(index)) {
+                            favoriteBtn.classList.add('active');
+                            favoriteBtn.innerHTML = '<i class="fas fa-star"></i>';
+                        }
+                        
+                        favoriteBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            toggleFavorite(index);
+                            populateQuestionsList(searchTerm);
+                        });
+                        
+                        questionItem.appendChild(questionText);
+                        questionItem.appendChild(favoriteBtn);
+                        
+                        questionItem.addEventListener('click', function() {
+                            userInput.value = item.question;
+                            modal.style.display = 'none';
+                            handleUserMessage();
+                        });
+                        
+                        questionsList.appendChild(questionItem);
+                    }
+                });
+            }
+            
+            // Favori yönetimi
+            function getFavorites() {
+                return JSON.parse(localStorage.getItem('meraFavorites')) || [];
+            }
+            
+            function toggleFavorite(index) {
+                const favorites = getFavorites();
+                const favoriteIndex = favorites.indexOf(index);
+                
+                if (favoriteIndex === -1) {
+                    favorites.push(index);
+                    showNotification('Favorilere eklendi!');
+                } else {
+                    favorites.splice(favoriteIndex, 1);
+                    showNotification('Favorilerden kaldırıldı!');
+                }
+                
+                localStorage.setItem('meraFavorites', JSON.stringify(favorites));
+            }
+            
+            // Sohbet geçmişi kaydetme
+            function saveToHistory(question, answer) {
+                const history = JSON.parse(localStorage.getItem('meraChatHistory')) || [];
+                history.push({
+                    question: question,
+                    answer: answer,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Son 50 mesajı sakla
+                if (history.length > 50) {
+                    history.splice(0, history.length - 50);
+                }
+                
+                localStorage.setItem('meraChatHistory', JSON.stringify(history));
+            }
+            
+            // Bağlam hafızası güncelleme
+            function updateContext(question, answer) {
+                chatContext.push({ role: 'user', content: question });
+                chatContext.push({ role: 'assistant', content: answer });
+                
+                if (chatContext.length > MAX_CONTEXT_LENGTH * 2) {
+                    chatContext = chatContext.slice(-MAX_CONTEXT_LENGTH * 2);
+                }
+            }
+            
+            // Gönder butonuna tıklama olayı
+            sendBtn.addEventListener('click', handleUserMessage);
+            
+            // Enter tuşuna basma olayı
+            userInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleUserMessage();
+                }
+            });
+            
+            function handleUserMessage() {
+                const message = userInput.value.trim();
+                if (message === '') return;
+                
+                // Gönder butonunda yükleme animasyonunu göster
+                const btnText = sendBtn.querySelector('.btn-text');
+                const btnLoading = sendBtn.querySelector('.btn-loading');
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'block';
+                
+                // Kullanıcı mesajını sohbet kutusuna ekle
+                addMessageToChat(message, 'user');
+                
+                // "Düşünülüyor..." mesajını göster
+                const thinkingMessage = addThinkingMessage();
+                
+                // Yapay zeka yanıtını al
+                setTimeout(() => {
+                    const response = getAIResponse(message);
+                    
+                    // "Düşünülüyor..." mesajını kaldır
+                    thinkingMessage.remove();
+                    
+                    // Yanıtı sohbet kutusuna ekle
+                    addMessageToChat(response, 'ai');
+                    
+                    // Geçmişe kaydet ve bağlamı güncelle
+                    saveToHistory(message, response);
+                    updateContext(message, response);
+                    
+                    // Yükleme animasyonunu kapat
+                    btnText.style.display = 'block';
+                    btnLoading.style.display = 'none';
+                    
+                    // Sohbet kutusunu en aşağı kaydır
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 2000);
+                
+                // Giriş alanını temizle
+                userInput.value = '';
+            }
+            
+            // Direkt soru sorma fonksiyonu (sağdaki butonlar için)
+            function handleUserMessageDirectly(question) {
+                // Gönder butonunda yükleme animasyonunu göster
+                const btnText = sendBtn.querySelector('.btn-text');
+                const btnLoading = sendBtn.querySelector('.btn-loading');
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'block';
+                
+                // Kullanıcı mesajını sohbet kutusuna ekle
+                addMessageToChat(question, 'user');
+                
+                // "Düşünülüyor..." mesajını göster
+                const thinkingMessage = addThinkingMessage();
+                
+                // Yapay zeka yanıtını al
+                setTimeout(() => {
+                    const response = getAIResponse(question);
+                    
+                    // "Düşünülüyor..." mesajını kaldır
+                    thinkingMessage.remove();
+                    
+                    // Yanıtı sohbet kutusuna ekle
+                    addMessageToChat(response, 'ai');
+                    
+                    // Geçmişe kaydet ve bağlamı güncelle
+                    saveToHistory(question, response);
+                    updateContext(question, response);
+                    
+                    // Yükleme animasyonunu kapat
+                    btnText.style.display = 'block';
+                    btnLoading.style.display = 'none';
+                    
+                    // Sohbet kutusunu en aşağı kaydır
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 2000);
+            }
+            
+            function addThinkingMessage() {
+                const thinkingElement = document.createElement('div');
+                thinkingElement.classList.add('message', 'ai-message');
+                thinkingElement.style.opacity = '0.7';
+                
+                const thinkingHeader = document.createElement('div');
+                thinkingHeader.classList.add('message-header');
+                thinkingHeader.textContent = 'MERA AI beta 0.9 düşünüyor...';
+                
+                const thinkingAnimation = document.createElement('div');
+                thinkingAnimation.classList.add('thinking-animation');
+                thinkingAnimation.innerHTML = '<span></span><span></span><span></span>';
+                
+                thinkingElement.appendChild(thinkingHeader);
+                thinkingElement.appendChild(thinkingAnimation);
+                chatBox.appendChild(thinkingElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                return thinkingElement;
+            }
+            
+            function addMessageToChat(message, sender, animate = true) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('message');
+                messageElement.classList.add(sender + '-message');
+                
+                if (!animate) {
+                    messageElement.style.animation = 'none';
+                    messageElement.style.opacity = '1';
+                    messageElement.style.transform = 'translateY(0)';
+                }
+                
+                const messageHeader = document.createElement('div');
+                messageHeader.classList.add('message-header');
+                messageHeader.textContent = sender === 'user' ? 'Siz' : 'MERA AI beta 0.9';
+                
+                const messageText = document.createElement('p');
+                messageText.textContent = message;
+                
+                messageElement.appendChild(messageHeader);
+                messageElement.appendChild(messageText);
+                chatBox.appendChild(messageElement);
+                
+                // Sohbet kutusunu en aşağı kaydır
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                return messageElement;
+            }
+            
+            function showNotification(text) {
+                notification.textContent = text;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 2000);
+            }
+            
+            function getAIResponse(userMessage) {
+                // Bağlam hafızasını kullanarak daha akıllı yanıtlar
+                const context = chatContext.map(msg => `${msg.role}: ${msg.content}`).join('\n');
+                const fullMessage = context + '\nuser: ' + userMessage;
+                
+                // Gelen mesajı küçük harfe çevir ve soru işaretlerini kaldır
+                const cleanMessage = userMessage.toLowerCase().replace('?', '');
+                
+                // Tam eşleşme kontrolü
+                for (const item of knowledgeBase) {
+                    if (item.question.toLowerCase() === cleanMessage) {
+                        return item.answer;
+                    }
+                }
+                
+                // Kısmi eşleşme kontrolü
+                for (const item of knowledgeBase) {
+                    if (cleanMessage.includes(item.question.toLowerCase()) || 
+                        item.question.toLowerCase().includes(cleanMessage)) {
+                        return item.answer;
+                    }
+                }
+                
+                // Bağlamsal yanıt
+                if (chatContext.length > 0) {
+                    const lastUserMessage = chatContext[chatContext.length - 1].content.toLowerCase();
+                    
+                    // Önceki mesajla ilişkili yanıtlar
+                    if (lastUserMessage.includes("ekran kartı") && userMessage.includes("fiyat")) {
+                        return "Ekran kartı fiyatları model ve markaya göre değişiklik gösterir. RTX 3000 serisi için güncel fiyatları araştırma sitelerinden kontrol etmenizi öneririm.";
+                    }
+                    
+                    if (lastUserMessage.includes("işlemci") && userMessage.includes("öner")) {
+                        return "Hangi bütçe ve kullanım amacına uygun işlemci önermemi istiyorsunuz? Oyun, ofis kullanımı, video düzenleme gibi detayları belirtirseniz daha iyi yardımcı olabilirim.";
+                    }
+                }
+                
+                // Varsayılan yanıtlar
+                const defaultResponses = [
+                    "Bu konu hakkında daha detaylı bilgi verebilmem için sorunuzu biraz daha spesifik hale getirebilir misiniz?",
+                    "PC bileşenleri hakkında size nasıl yardımcı olabilirim? İşlemciler, ekran kartları, RAM'ler veya diğer bileşenlerle ilgili sorularınızı yanıtlayabilirim.",
+                    "Üzgünüm, bu sorunun cevabını bilgi tabanımda bulamadım. Başka bir soru sormak ister misiniz?",
+                    "Bu konuda size yardımcı olabilmem için sorunuzu farklı şekilde ifade edebilir misiniz?"
+                ];
+                
+                return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+            }
+        });
+    </script>
+</body>
+</html>
